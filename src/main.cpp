@@ -1,41 +1,42 @@
 #include <simlib.h>
 #include <math.h>
 
-const double xInit = 1.0; // Initial value of x
-const double yInit = 1.0; // Initial value of y
-const double zInit = 1.0; // Initial value of z
 
-const double nu = 10.0;   // New parameter ν
-const double kappa = 1.0; // New parameter κ
-const double a = 1.0;     // New parameter a
-const double T0 = 1.0;    // New parameter T0
-const double alpha1 = 1.0;// New parameter α1
-const double alpha2 = 1.0;// New parameter α2
+const double beta1 = 0.1;
+const double gamma1 = 0.05;
+const double beta2 = 0.08;
+const double gamma2 = 0.03;
 
-const double sigma = nu / kappa;
-const double rho = (a * T0) / (kappa * M_PI * (a * a + 1)) * alpha1 / alpha2;
-const double beta = 4.0 / (a * a + 1);
+// starting conditions
+const double s1Input = 1000;
+const double I1Input = 1;
+const double s2Input = 1000;
+const double I2Input = 0;
 
-struct LorenzSystem { // struct - same as class but all members are public
-    Integrator x, y, z; // State variables: x, y, z
-    LorenzSystem() :
-            x(sigma * (y - x), xInit),
-            y(x * (rho - z) - y, yInit),
-            z(x * y - beta * z, zInit) {};
+struct kapavkaModel {
+    Integrator s1, I1, s2, I2; // Integrátory pro výpočet stavu systému
+public:
+    kapavkaModel() :
+            s1((-beta1 * s1 * I2 + gamma1 * I1), s1Input),
+            I1((beta1 * s1 * I2 - gamma1 * I1), I1Input),
+            s2((-beta2 * s2 * I1 + gamma2 * I2), s2Input),
+            I2((beta2 * s2 * I1 - gamma2 * I2), I2Input) {}
 };
 
-LorenzSystem lorenz;
+kapavkaModel mod1;
 
 extern void Sample();
 
-Sampler s(Sample, 0.1);
 
 void Sample() {
-    Print("%g %g %g\n", lorenz.x.Value(), lorenz.y.Value(), lorenz.z.Value());
+    Print("%g %g %g %g\n", mod1.s1.Value(), mod1.I1.Value(), mod1.s2.Value(), mod1.I2.Value());
 }
 
 
-int main() {
+int main(int argc, char *argv[]) {
+    kapavkaModel mod1; //
+    Sampler s(Sample, 0.1); // Sampler pro výpis stavu systému
+
     // Print("Lorenz System Simulation in C++ \n");
     Init(0, 50.0);     // Initialization of experiment parameters
     SetStep(1e-3, 0.1); // Integration step
