@@ -17,4 +17,4 @@ doc:
 	$(MAKE) -C doc
 
 clean:
-	rm -fr main.out
+	rm -fr main
