@@ -13,6 +13,8 @@ main: src/main.cpp
 run : main
 	./$(target)
 
+doc: 
+	$(MAKE) -C doc
 
 clean:
 	rm -fr main.out
